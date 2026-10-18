@@ -1,0 +1,505 @@
+<title>Piway Clarkson — Southerners MC</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Pirata+One&family=Special+Elite&display=swap">
+<style>
+/* Layout: logo du club en fond fixe, dossier en grille de cartes qui se retournent sous les balles, lecteur collé en bas */
+:root {
+  --bg: #050504;
+  --panel: #101010;
+  --panel-2: #181817;
+  --steel: #2c2c2a;
+  --ash: #8d8c87;
+  --bone: #dcd7ca;
+  --white: #f3f0e8;
+  --font-display: "Pirata One", "UnifrakturCook", Georgia, serif;
+  --font-body: "Barlow", "Helvetica Neue", Arial, sans-serif;
+  --font-stamp: "Special Elite", "Courier New", monospace;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { background: var(--bg); }
+body {
+  background: var(--bg);
+  color: var(--bone);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.55;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0 110px;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+body.locked { overflow: hidden; height: 100vh; }
+
+/* Fond : logo du club */
+.bg-logo {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background: var(--bg) url("assets/logo.webp") center 42% / min(135vmax, 1500px) auto no-repeat;
+  opacity: .34;
+  filter: grayscale(.35) contrast(1.05);
+}
+.bg-vignette {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(ellipse at 50% 38%, transparent 20%, rgba(5,5,4,.75) 75%, var(--bg) 100%),
+    linear-gradient(to bottom, rgba(5,5,4,.55), rgba(5,5,4,.15) 30%, rgba(5,5,4,.85));
+}
+.grain {
+  position: fixed; inset: 0; z-index: 1; pointer-events: none; opacity: .09; mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='160' height='160' filter='url(%23n)'/></svg>");
+}
+
+main { position: relative; z-index: 2; max-width: 1180px; margin-inline: auto; }
+
+/* Hero */
+.hero { padding-block: clamp(48px, 9vw, 110px) clamp(28px, 5vw, 56px); display: grid; gap: 18px; }
+.club-line {
+  font-family: var(--font-stamp); letter-spacing: .28em; text-transform: uppercase;
+  font-size: .8rem; color: var(--ash); display: flex; flex-wrap: wrap; gap: 6px 18px; align-items: center;
+}
+.club-line b { color: var(--bone); font-weight: 400; border: 1px solid var(--ash); padding: 1px 8px; letter-spacing: .12em; }
+h1 {
+  font-family: var(--font-display); font-weight: 400; margin: 0;
+  font-size: clamp(3.2rem, 13vw, 9.5rem); line-height: .88; color: var(--white);
+  text-shadow: 0 4px 0 #000, 0 0 40px rgba(0,0,0,.9);
+  text-wrap: balance;
+}
+h1 .alias { display: block; color: var(--ash); font-size: .42em; letter-spacing: .04em; margin-top: .22em; }
+.lede { max-width: 38rem; font-size: clamp(1.05rem, 2.2vw, 1.25rem); color: var(--bone); margin: 0; text-wrap: pretty; }
+.hint {
+  font-family: var(--font-stamp); font-size: .85rem; color: var(--ash); letter-spacing: .12em; text-transform: uppercase;
+  display: flex; align-items: center; gap: 12px; margin-top: 6px;
+}
+.hint::before { content: ""; width: 40px; height: 1px; background: var(--ash); }
+
+/* Cartes */
+.grid {
+  display: grid; gap: clamp(14px, 2vw, 24px);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  padding-bottom: 40px;
+}
+@media (max-width: 900px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 600px) { .grid { grid-template-columns: minmax(0, 1fr); } }
+
+.card {
+  perspective: 1400px; height: 25rem; position: relative; cursor: pointer;
+  background: none; border: 0; padding: 0; text-align: left; color: inherit; font: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+@media (max-width: 600px) { .card { height: 27rem; } }
+.card:focus-visible { outline: 2px solid var(--white); outline-offset: 4px; }
+.inner {
+  position: absolute; inset: 0; transform-style: preserve-3d;
+  transition: transform .8s cubic-bezier(.3,.8,.25,1);
+}
+.card.flipped .inner { transform: rotateY(180deg); }
+.card.shake { animation: shake .22s linear; }
+@keyframes shake {
+  0% { transform: translate(0,0) } 20% { transform: translate(-5px,3px) rotate(-.4deg) }
+  45% { transform: translate(4px,-3px) rotate(.3deg) } 70% { transform: translate(-2px,2px) } 100% { transform: translate(0,0) }
+}
+.face {
+  position: absolute; inset: 0; overflow: hidden;
+  backface-visibility: hidden; -webkit-backface-visibility: hidden;
+  border: 1px solid var(--steel); background: var(--panel);
+  box-shadow: 0 18px 40px rgba(0,0,0,.6);
+}
+.face::before { /* surface de cuir cousue */
+  content: ""; position: absolute; inset: 8px; border: 1px dashed rgba(220,215,202,.22); pointer-events: none; z-index: 2;
+}
+.front {
+  display: flex; flex-direction: column; justify-content: space-between; padding: 26px 26px 24px;
+  background:
+    radial-gradient(circle at 20% 0%, rgba(255,255,255,.06), transparent 55%),
+    linear-gradient(160deg, #161615, #0b0b0a);
+}
+.front .tag { font-family: var(--font-stamp); font-size: .78rem; letter-spacing: .22em; text-transform: uppercase; color: var(--ash); }
+.front h2 { font-family: var(--font-display); font-weight: 400; font-size: clamp(2.2rem, 4.4vw, 3rem); line-height: .95; margin: 0; color: var(--white); text-wrap: balance; }
+.front .more { display: flex; align-items: center; justify-content: space-between; font-size: .8rem; letter-spacing: .16em; text-transform: uppercase; color: var(--ash); }
+.front .more svg { width: 26px; height: 26px; }
+.card:hover .front { border-color: var(--ash); }
+.card:hover .front .more { color: var(--white); }
+
+/* Logo du club sur chaque carte */
+.wm {
+  position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background: url("assets/logo.webp") center 56% / 125% auto no-repeat;
+  -webkit-mask-image: radial-gradient(closest-side, #000 62%, transparent 100%);
+  mask-image: radial-gradient(closest-side, #000 62%, transparent 100%);
+  opacity: .42;
+}
+.back .wm { opacity: .16; background-size: 110% auto; background-position: center; }
+.front > :not(.wm):not(.holes):not(.flash), .back h3 { position: relative; z-index: 1; }
+.back h3 { z-index: 3; }
+.back {
+  transform: rotateY(180deg);
+  display: flex; flex-direction: column; padding: 24px 24px 20px;
+  background: linear-gradient(200deg, #1a1a19, #0c0c0b);
+}
+.back h3 { font-family: var(--font-display); font-weight: 400; font-size: 1.9rem; line-height: 1; margin: 0 0 12px; color: var(--white); padding-right: 4px; }
+.back .scroll { overflow-y: auto; flex: 1; min-height: 0; padding-right: 8px; position: relative; z-index: 3; scrollbar-width: thin; scrollbar-color: var(--steel) transparent; }
+.back p { margin: 0 0 .8em; font-size: .98rem; color: var(--bone); }
+.back ul { margin: 0; padding: 0 0 0 1.1em; display: grid; gap: .5em; font-size: .96rem; }
+.back li::marker { color: var(--ash); }
+.back dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 9px 14px; font-size: .96rem; }
+.back dt { font-family: var(--font-stamp); font-size: .72rem; letter-spacing: .16em; text-transform: uppercase; color: var(--ash); padding-top: .2em; }
+.back dd { margin: 0; color: var(--white); }
+.back .stamp { font-family: var(--font-stamp); color: var(--ash); font-size: .74rem; letter-spacing: .16em; text-transform: uppercase; margin-top: 10px; z-index: 3; position: relative; }
+
+/* Impacts */
+.holes { position: absolute; inset: 0; pointer-events: none; z-index: 4; }
+.hole { position: absolute; width: 74px; height: 74px; margin: -37px 0 0 -37px; animation: pop .18s ease-out; }
+@keyframes pop { from { transform: scale(1.7) rotate(var(--r)); opacity: .2 } to { transform: scale(1) rotate(var(--r)); opacity: 1 } }
+.flash { position: absolute; inset: 0; z-index: 5; pointer-events: none; opacity: 0; background: radial-gradient(circle at var(--fx) var(--fy), #fff 0, rgba(255,255,255,.75) 8%, rgba(255,255,255,0) 45%); }
+.flash.go { animation: flash .16s ease-out; }
+@keyframes flash { 0% { opacity: 1 } 100% { opacity: 0 } }
+.casing-note { display: none; }
+
+/* Pied */
+footer { position: relative; z-index: 2; text-align: center; padding-block: 30px 10px; font-family: var(--font-stamp); font-size: .8rem; letter-spacing: .2em; text-transform: uppercase; color: var(--ash); }
+footer img { display: block; width: 64px; height: 64px; margin: 0 auto 14px; object-fit: cover; border-radius: 50%; opacity: .75; }
+
+/* Écran d'entrée */
+.gate {
+  position: fixed; inset: 0; z-index: 100; background: var(--bg);
+  display: grid; place-items: center; text-align: center;
+  padding: 24px max(16px, env(safe-area-inset-left, 0px));
+  transition: opacity 1s ease, visibility 1s;
+}
+.gate.out { opacity: 0; visibility: hidden; }
+.gate-inner { display: grid; justify-items: center; gap: 22px; max-width: 520px; }
+.gate img { width: min(70vw, 360px); height: auto; aspect-ratio: 1; }
+.gate p { margin: 0; font-family: var(--font-stamp); letter-spacing: .18em; text-transform: uppercase; font-size: .82rem; color: var(--ash); }
+.enter {
+  font-family: var(--font-display); font-size: 2rem; letter-spacing: .08em; color: var(--white);
+  background: transparent; border: 1px solid var(--bone); padding: 8px 40px 10px; cursor: pointer;
+  transition: background .2s, color .2s;
+}
+.enter:hover, .enter:focus-visible { background: var(--white); color: #000; outline: none; }
+
+/* Lecteur */
+.player {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 50;
+  padding: 12px max(16px, env(safe-area-inset-right, 0px)) calc(12px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+  background: rgba(8,8,7,.92); border-top: 1px solid var(--steel);
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+}
+.player-in { max-width: 1180px; margin-inline: auto; display: flex; align-items: center; gap: 16px; }
+.pbtn {
+  flex: none; width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--bone); background: transparent; color: var(--white);
+  display: grid; place-items: center; cursor: pointer; padding: 0;
+}
+.pbtn:hover, .pbtn:focus-visible { background: var(--white); color: #000; outline: none; }
+.pbtn svg { width: 20px; height: 20px; display: block; }
+.pbtn.small { width: 36px; height: 36px; border-color: transparent; }
+.pbtn.small:hover { border-color: var(--bone); }
+.pbtn [data-off] { display: none; }
+.pbtn.is-off [data-on] { display: none; }
+.pbtn.is-off [data-off] { display: block; }
+.meta { min-width: 0; flex: 1; display: grid; gap: 6px; }
+.title { font-family: var(--font-stamp); font-size: .82rem; letter-spacing: .1em; text-transform: uppercase; color: var(--bone); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.title span { color: var(--ash); }
+.time { font-variant-numeric: tabular-nums; color: var(--ash); font-size: .78rem; flex: none; min-width: 5.6em; text-align: right; }
+.vol { display: flex; align-items: center; gap: 6px; flex: none; }
+input[type=range] { -webkit-appearance: none; appearance: none; height: 18px; background: transparent; margin: 0; cursor: pointer; accent-color: var(--white); }
+input[type=range]::-webkit-slider-runnable-track { height: 3px; background: linear-gradient(to right, var(--white) var(--p, 0%), var(--steel) var(--p, 0%)); }
+input[type=range]::-moz-range-track { height: 3px; background: var(--steel); }
+input[type=range]::-moz-range-progress { height: 3px; background: var(--white); }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 12px; border-radius: 50%; background: var(--white); margin-top: -4.5px; border: 0; }
+input[type=range]::-moz-range-thumb { width: 12px; height: 12px; border-radius: 50%; background: var(--white); border: 0; }
+input[type=range]:focus-visible { outline: 1px solid var(--bone); outline-offset: 3px; }
+#seek { width: 100%; }
+#volume { width: 96px; }
+@media (max-width: 640px) {
+  .player-in { flex-wrap: wrap; gap: 8px 12px; }
+  .meta { order: 3; flex-basis: 100%; }
+  .vol { margin-left: auto; }
+  .time { display: none; }
+  body { padding-bottom: 150px; }
+  #volume { width: 84px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .inner { transition-duration: .01s; }
+  .card.shake { animation: none; }
+  .hole { animation: none; }
+}
+</style>
+
+<div class="bg-logo" aria-hidden="true"></div>
+<div class="bg-vignette" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+
+<div class="gate" id="gate">
+  <div class="gate-inner">
+    <img src="assets/logo.webp" alt="Logo Southerners MC Los Santos 1%">
+    <p>Dossier confidentiel · Southerners MC</p>
+    <button class="enter" id="enter" type="button">Entrer</button>
+    <p style="font-size:.7rem">Son activé à l'entrée</p>
+  </div>
+</div>
+
+<main>
+  <header class="hero">
+    <div class="club-line"><span>Southerners MC</span><b>1%</b><span>Los Santos</span></div>
+    <h1>Peyton Clarkson<span class="alias">« Piway »</span></h1>
+    <p class="lede">Né à Chicago dans une famille aisée, élevé sans affection. Treize ans de prison pour un coup de trop. À la sortie, une seule envie : une famille qui ne lâche personne.</p>
+    <div class="hint">Tire sur une carte pour l'ouvrir</div>
+  </header>
+
+  <section class="grid" id="grid" aria-label="Background du personnage"></section>
+
+  <footer>
+    <img src="assets/logo.webp" alt="">
+    Southerners MC · Los Santos · Background GTA RP
+  </footer>
+</main>
+
+<div class="player" role="region" aria-label="Lecteur de musique">
+  <div class="player-in">
+    <button class="pbtn" id="play" type="button" aria-label="Pause">
+      <svg viewBox="0 0 24 24" fill="currentColor" data-on><rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/></svg>
+      <svg viewBox="0 0 24 24" fill="currentColor" data-off><path d="M8 5v14l11-7z"/></svg>
+    </button>
+    <div class="meta">
+      <div class="title">Terrible Tommy <span>· Ryan Horne</span></div>
+      <input type="range" id="seek" min="0" max="1000" value="0" aria-label="Position dans le morceau">
+    </div>
+    <div class="time" id="time">0:00 / 0:00</div>
+    <div class="vol">
+      <button class="pbtn small" id="mute" type="button" aria-label="Couper le son">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-on><path d="M4 9v6h4l5 4V5L8 9z" fill="currentColor"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-off><path d="M4 9v6h4l5 4V5L8 9z" fill="currentColor"/><path d="M17 9l5 6M22 9l-5 6"/></svg>
+      </button>
+      <input type="range" id="volume" min="0" max="100" value="35" aria-label="Volume">
+    </div>
+  </div>
+</div>
+
+<audio id="bgm" src="assets/music.mp3" loop preload="auto"></audio>
+
+<script>
+(function () {
+  var CARDS = [
+    { tag: "Identité", title: "Fiche d'état civil", html:
+      '<dl><dt>Nom</dt><dd>Clarkson</dd><dt>Prénom</dt><dd>Peyton</dd><dt>Surnom</dt><dd>Piway</dd>' +
+      '<dt>Naissance</dt><dd>14 septembre 1996<br>Chicago, Illinois, USA</dd><dt>Origine</dt><dd>Afro-Américain</dd>' +
+      '<dt>Passions</dt><dd>Moto, musculation, NBA, pêche, chasse, randonnée</dd><dt>Équipe</dt><dd>Chicago Bulls</dd>' +
+      '<dt>Alcool</dt><dd>Bourbon du Kentucky</dd></dl>' },
+    { tag: "Chapitre I", title: "Enfance dorée, maison vide", html:
+      '<p>Peyton naît à Chicago dans une famille aisée. Son père est agent immobilier, sa mère travaille dans la banque. Il ne manque jamais d\'argent.</p>' +
+      '<p>Ses parents, absorbés par leurs carrières, lui donnent tout sauf l\'essentiel : de l\'attention et de l\'amour. Il grandit seul, indépendant, impulsif et dur à tenir.</p>' },
+    { tag: "Chapitre II", title: "Le jour des cuirs", html:
+      '<p>À 11 ans, pendant une fête de quartier, un Motorcycle Club traverse la rue. Peyton est happé par le bruit des moteurs et les hommes qui portent leurs couleurs.</p>' +
+      '<p>Certains prennent le temps de lui parler et lui laissent essayer leurs cuirs. Il découvre la solidarité, l\'entraide, la règle que personne n\'est laissé derrière.</p>' +
+      '<p>Ce jour-là, il sait où il veut appartenir.</p>' },
+    { tag: "Chapitre III", title: "Treize ans", html:
+      '<p>La moto et la musculation deviennent son exutoire. Mais derrière la passion, son tempérament reste instable.</p>' +
+      '<p>Lors d\'une altercation, il perd tout contrôle et massacre un homme : mâchoire, pommette et nez fracturés, cloison déplacée.</p>' +
+      '<p>Verdict : <b style="color:var(--white)">13 ans de prison</b>. Derrière les barreaux, il apprend que le respect et la maîtrise de soi font la différence. La colère, elle, ne part pas.</p>' },
+    { tag: "Chapitre IV", title: "Repartir de zéro", html:
+      '<p>En prison, Peyton comprend ce qu\'il refuse : le bureau, l\'immobilier, la vie dictée par les attentes de son père.</p>' +
+      '<p>À sa sortie, il tourne le dos à sa famille d\'origine et choisit l\'univers biker. Il veut s\'investir à fond dans un MC, le faire grandir et en faire une vraie famille.</p>' +
+      '<p>Il garde aussi un rêve à lui : <b style="color:var(--white)">Wild Pro Shops</b>, un magasin de pêche, de chasse et de randonnée, légal, stable et durable.</p>' },
+    { tag: "Caractère", title: "Loyal, mais explosif", html:
+      '<p>Gentil, généreux et d\'une loyauté sans faille avec ceux qu\'il aime.</p>' +
+      '<p>Provoqué, humilié ou menacé, il peut devenir violent sans réfléchir. Son passage en prison n\'a pas effacé cette violence, il lui a seulement appris qu\'il doit travailler sur lui.</p>' +
+      '<ul><li>Le respect passe avant tout</li><li>La fraternité ne se limite pas au sang</li><li>La parole donnée ne se négocie pas</li></ul>' },
+    { tag: "Court terme", title: "Se faire un nom", html:
+      '<ul><li>Se faire connaître en ville et bâtir un réseau de contacts</li><li>Faire grandir le Club House et lancer les premiers travaux</li><li>Trouver un emploi stable pour des revenus réguliers</li><li>Mettre de l\'argent de côté</li><li>Préparer l\'ouverture de Wild Pro Shops</li></ul>' },
+    { tag: "Moyen terme", title: "Monter dans le club", html:
+      '<ul><li>Apprendre à canaliser sa colère et décider plus calmement</li><li>Chercher un emplacement pour Wild Pro Shops</li><li>Contacter le gouvernement et les autorités pour le côté administratif et commercial</li><li>Participer activement au développement du MC</li><li>Gravir les échelons jusqu\'à une place reconnue</li><li>Étendre la réputation et l\'influence du club, dans le légal comme dans l\'illégal</li></ul>' },
+    { tag: "Long terme", title: "Le club que toute la ville respecte", html:
+      '<ul><li>Faire de son MC le plus connu, le plus influent et le plus respecté de la ville</li><li>Ouvrir Wild Pro Shops et en faire une enseigne réputée</li><li>Maîtriser enfin sa colère sans recourir à la violence</li><li>Fonder une vraie famille, trouver la stabilité et offrir à ses proches l\'amour qui lui a manqué</li></ul>' },
+    { tag: "Plan B", title: "Le garage", html:
+      '<p>Si Wild Pro Shops ne voit pas le jour, Peyton ouvrira un petit garage auto et moto.</p>' +
+      '<p>Pas de préparation ni de customs. Des services simples et accessibles : réparations mécaniques légères, entretien courant, nettoyage, interventions rapides pour les clients de passage.</p>' +
+      '<p>Une activité légale qui le garde près des véhicules et lui assure une stabilité financière.</p>' },
+    { tag: "Conclusion", title: "Trois piliers", html:
+      '<p>Marqué par son passé, ses erreurs et ses 13 ans derrière les barreaux, Piway a grandi en manque d\'affection et a trouvé très tôt chez les bikers la fraternité qu\'il cherchait.</p>' +
+      '<ul><li>Son Motorcycle Club</li><li>Son indépendance professionnelle</li><li>La maîtrise de lui-même</li></ul>' +
+      '<p style="margin-top:.8em">Son principal ennemi reste son propre tempérament.</p>' }
+  ];
+
+  var ARROW = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><path d="M12 1v5M12 18v5M1 12h5M18 12h5"/></svg>';
+  var grid = document.getElementById("grid");
+
+  CARDS.forEach(function (c) {
+    var el = document.createElement("button");
+    el.type = "button";
+    el.className = "card";
+    el.setAttribute("aria-label", c.tag + " : " + c.title);
+    el.innerHTML =
+      '<div class="inner">' +
+        '<div class="face front"><div class="wm"></div><div class="tag">' + c.tag + '</div><h2>' + c.title + '</h2>' +
+          '<div class="more"><span>Tirer pour ouvrir</span>' + ARROW + '</div>' +
+          '<div class="holes"></div><div class="flash"></div></div>' +
+        '<div class="face back"><div class="wm"></div><h3>' + c.title + '</h3><div class="scroll">' + c.html + '</div>' +
+          '<div class="stamp">' + c.tag + ' · Tirer pour refermer</div>' +
+          '<div class="holes"></div><div class="flash"></div></div>' +
+      '</div>';
+    grid.appendChild(el);
+    el.addEventListener("click", function (e) { fire(el, e); });
+  });
+
+  /* ---------- Son de revolver (synthétisé) ---------- */
+  var ctx = null;
+  function audioCtx() {
+    if (!ctx) { try { ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { ctx = null; } }
+    if (ctx && ctx.state === "suspended") ctx.resume();
+    return ctx;
+  }
+  var noiseBuf = null;
+  function gunshot() {
+    var a = audioCtx(); if (!a) return;
+    var t = a.currentTime, out = a.createGain();
+    out.gain.value = 0.95;
+    var comp = a.createDynamicsCompressor();
+    out.connect(comp); comp.connect(a.destination);
+    if (!noiseBuf) {
+      noiseBuf = a.createBuffer(1, a.sampleRate * 1.6, a.sampleRate);
+      var d = noiseBuf.getChannelData(0);
+      for (var i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+    }
+    /* claquement sec */
+    var n = a.createBufferSource(); n.buffer = noiseBuf;
+    var bp = a.createBiquadFilter(); bp.type = "lowpass";
+    bp.frequency.setValueAtTime(9000, t); bp.frequency.exponentialRampToValueAtTime(500, t + 0.25);
+    var ng = a.createGain();
+    ng.gain.setValueAtTime(1, t); ng.gain.exponentialRampToValueAtTime(0.001, t + 0.35);
+    n.connect(bp); bp.connect(ng); ng.connect(out); n.start(t); n.stop(t + 0.4);
+    /* choc grave */
+    var o = a.createOscillator(); o.type = "sine";
+    o.frequency.setValueAtTime(170, t); o.frequency.exponentialRampToValueAtTime(38, t + 0.2);
+    var og = a.createGain();
+    og.gain.setValueAtTime(1.1, t); og.gain.exponentialRampToValueAtTime(0.001, t + 0.28);
+    o.connect(og); og.connect(out); o.start(t); o.stop(t + 0.3);
+    /* écho de pièce */
+    var dl = a.createDelay(); dl.delayTime.value = 0.11;
+    var fb = a.createGain(); fb.gain.value = 0.32;
+    var lp = a.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 1800;
+    out.connect(dl); dl.connect(lp); lp.connect(fb); fb.connect(dl); lp.connect(comp);
+    /* culasse */
+    var c = a.createBufferSource(); c.buffer = noiseBuf;
+    var hp = a.createBiquadFilter(); hp.type = "highpass"; hp.frequency.value = 3500;
+    var cg = a.createGain();
+    cg.gain.setValueAtTime(0.0001, t + 0.38);
+    cg.gain.exponentialRampToValueAtTime(0.25, t + 0.385);
+    cg.gain.exponentialRampToValueAtTime(0.001, t + 0.42);
+    c.connect(hp); hp.connect(cg); cg.connect(comp); c.start(t + 0.38); c.stop(t + 0.45);
+  }
+
+  /* ---------- Impact de balle ---------- */
+  function holeSVG() {
+    var cracks = "", i, n = 7 + Math.floor(Math.random() * 4);
+    for (i = 0; i < n; i++) {
+      var ang = (Math.PI * 2 * i) / n + Math.random() * 0.4;
+      var len = 18 + Math.random() * 17;
+      var x2 = 37 + Math.cos(ang) * len, y2 = 37 + Math.sin(ang) * len;
+      var mx = 37 + Math.cos(ang + 0.15) * len * 0.55, my = 37 + Math.sin(ang + 0.15) * len * 0.55;
+      cracks += '<path d="M37 37 L' + mx.toFixed(1) + ' ' + my.toFixed(1) + ' L' + x2.toFixed(1) + ' ' + y2.toFixed(1) + '" stroke="#000" stroke-width="' + (0.8 + Math.random()).toFixed(1) + '" fill="none" opacity=".85"/>';
+    }
+    return '<svg viewBox="0 0 74 74" width="74" height="74">' +
+      '<defs><radialGradient id="g" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#000"/><stop offset=".55" stop-color="#000" stop-opacity=".9"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient></defs>' +
+      '<circle cx="37" cy="37" r="26" fill="url(#g)"/>' + cracks +
+      '<circle cx="37" cy="37" r="7.5" fill="#000" stroke="#bdb8aa" stroke-width="1.6" stroke-opacity=".75"/>' +
+      '<circle cx="37" cy="37" r="4.5" fill="#000"/>' +
+      '<path d="M31 33 A8 8 0 0 1 40 30" stroke="#fff" stroke-opacity=".5" stroke-width="1" fill="none"/></svg>';
+  }
+
+  var busy = false;
+  function fire(card, e) {
+    if (busy) return;
+    busy = true;
+    var flipped = card.classList.contains("flipped");
+    var face = card.querySelector(flipped ? ".back" : ".front");
+    var rect = card.getBoundingClientRect();
+    var x, y;
+    if (e && e.clientX) { x = e.clientX - rect.left; y = e.clientY - rect.top; }
+    else { x = rect.width / 2; y = rect.height / 2; }
+    x = Math.max(30, Math.min(rect.width - 30, x));
+    y = Math.max(30, Math.min(rect.height - 30, y));
+
+    gunshot();
+    var fl = face.querySelector(".flash");
+    fl.style.setProperty("--fx", x + "px"); fl.style.setProperty("--fy", y + "px");
+    fl.classList.remove("go"); void fl.offsetWidth; fl.classList.add("go");
+
+    var h = document.createElement("div");
+    h.className = "hole";
+    h.style.left = x + "px"; h.style.top = y + "px";
+    h.style.setProperty("--r", Math.floor(Math.random() * 360) + "deg");
+    h.style.transform = "rotate(" + h.style.getPropertyValue("--r") + ")";
+    h.innerHTML = holeSVG();
+    face.querySelector(".holes").appendChild(h);
+
+    card.classList.remove("shake"); void card.offsetWidth; card.classList.add("shake");
+    setTimeout(function () { card.classList.toggle("flipped"); }, 230);
+    setTimeout(function () { busy = false; card.classList.remove("shake"); }, 950);
+  }
+
+  /* ---------- Lecteur ---------- */
+  var bgm = document.getElementById("bgm");
+  var playBtn = document.getElementById("play");
+  var muteBtn = document.getElementById("mute");
+  var vol = document.getElementById("volume");
+  var seek = document.getElementById("seek");
+  var timeEl = document.getElementById("time");
+  var seeking = false;
+
+  function fmt(s) { if (!isFinite(s)) return "0:00"; var m = Math.floor(s / 60), r = Math.floor(s % 60); return m + ":" + (r < 10 ? "0" : "") + r; }
+  function paintRange(r) { r.style.setProperty("--p", ((r.value - r.min) / (r.max - r.min) * 100) + "%"); }
+  function syncPlay() {
+    var paused = bgm.paused;
+    playBtn.classList.toggle("is-off", paused);
+    playBtn.setAttribute("aria-label", paused ? "Lecture" : "Pause");
+  }
+  function syncMute() {
+    var off = bgm.muted || bgm.volume === 0;
+    muteBtn.classList.toggle("is-off", off);
+    muteBtn.setAttribute("aria-label", off ? "Rétablir le son" : "Couper le son");
+  }
+  bgm.volume = 0.35; paintRange(vol); paintRange(seek); syncPlay();
+
+  playBtn.addEventListener("click", function () {
+    if (bgm.paused) { bgm.play().catch(function () {}); } else { bgm.pause(); }
+  });
+  bgm.addEventListener("play", syncPlay);
+  bgm.addEventListener("pause", syncPlay);
+  muteBtn.addEventListener("click", function () {
+    if (bgm.volume === 0) { bgm.volume = 0.35; vol.value = 35; bgm.muted = false; }
+    else { bgm.muted = !bgm.muted; }
+    paintRange(vol); syncMute();
+  });
+  vol.addEventListener("input", function () {
+    bgm.volume = vol.value / 100; bgm.muted = false; paintRange(vol); syncMute();
+  });
+  bgm.addEventListener("timeupdate", function () {
+    if (!seeking && bgm.duration) { seek.value = (bgm.currentTime / bgm.duration) * 1000; paintRange(seek); }
+    timeEl.textContent = fmt(bgm.currentTime) + " / " + fmt(bgm.duration);
+  });
+  bgm.addEventListener("loadedmetadata", function () { timeEl.textContent = "0:00 / " + fmt(bgm.duration); });
+  seek.addEventListener("input", function () { seeking = true; paintRange(seek); if (bgm.duration) bgm.currentTime = (seek.value / 1000) * bgm.duration; });
+  seek.addEventListener("change", function () { seeking = false; });
+
+  /* ---------- Entrée : la musique démarre ici ---------- */
+  var gate = document.getElementById("gate");
+  document.body.classList.add("locked");
+  document.getElementById("enter").addEventListener("click", function () {
+    audioCtx();
+    var target = 0.35;
+    bgm.volume = 0;
+    bgm.play().then(function () {
+      var step = 0;
+      var iv = setInterval(function () {
+        step++; var v = Math.min(vol.value / 100, (step / 30) * (vol.value / 100));
+        bgm.volume = v; syncMute();
+        if (step >= 30) clearInterval(iv);
+      }, 60);
+    }).catch(function () { bgm.volume = target; syncPlay(); });
+    gate.classList.add("out");
+    document.body.classList.remove("locked");
+    setTimeout(function () { gate.style.display = "none"; }, 1100);
+  });
+})();
+</script>
